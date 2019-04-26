@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ysd.dao.BookMapper">
+	<resultMap id="bookmap" type="book">
+  		<id column="bid" property="bid"></id>
+  		<result column="bname" property="bname"></result>
+  		<result column="price" property="price"></result>
+  		<result column="zuozhe" property="zuozhe"></result>
+  		<result column="jianjie" property="jianjie"></result>
+  		<result column="liyou" property="liyou"></result>
+  		<result column="cid" property="bookCategory.cid"></result>
+  		<result column="cname" property="bookCategory.cname"></result>
+  	</resultMap>
+	<select id="selectBook" parameterType="fenye" resultMap="bookmap">
+		select b.bid,b.bname,b.price,b.jianjie,b.zuozhe,b.liyou,c.cid,c.cname from book b,bookcategory c   
+		<where>
+			<if test="book.bname!=null and book.bname!=''">
+			and	 b.bname like "%"#{book.bname}"%"
+			</if>
+			<if test="startPrice!=null and startPrice!=''">
+			and	 b.price &gt;= #{startPrice}
+			</if>
+			<if test="endPrice!=null and endPrice!=''">
+			and	 b.price &lt;= #{endPrice}
+			</if>
+			<if test="book.bookCategory.cid!=null and book.bookCategory.cid!=''">
+			and	c.cid=#{book.bookCategory.cid}
+			</if>
+			and b.cid=c.cid
+		</where>
+		limit #{page},#{pageSize}
+	</select>
+	<select id="selectBookCount" parameterType="fenye" resultType="int">
+		select count(b.bid) from book b,bookcategory c   
+		<where>
+			<if test="book.bname!=null and book.bname!=''">
+			and	 b.bname like "%"#{book.bname}"%"
+			</if>
+			<!-- <if test="book.price!=null and book.price!=''">
+			and	 b.price 
+			</if> -->
+			<if test="book.bookCategory.cid!=null and book.bookCategory.cid!=''">
+			and	c.cid=#{book.bookCategory.cid}
+			</if>
+			and b.cid=c.cid
+		</where>
+	</select>
+	
+	
+	<select id="selectBookCategory" resultType="bookCategory">
+		select cid,cname from bookcategory
+	</select>
+	
+	<insert id="insertBook" parameterType="Book">
+		insert into book(bname,price,zuozhe,jianjie,liyou,cid) values(#{bname},#{price},#{zuozhe},#{jianjie},#{liyou},#{bookCategory.cid})
+	</insert>
+	
+	<update id="updateBook" parameterType="Book">
+		update book
+		<set>
+			<if test="bname!=null and bname!=''">
+				 bname=#{bname},			
+			</if>
+			<if test="price!=null and price!=''">
+				 price=#{price},			
+			</if>
+			<if test="zuozhe!=null and zuozhe!=''">
+				 zuozhe=#{zuozhe},			
+			</if>
+			<if test="jianjie!=null and jianjie!=''">
+				 jianjie=#{jianjie},			
+			</if>
+			<if test="liyou!=null and liyou!=''">
+				 liyou=#{liyou},			
+			</if>
+			<if test="bookCategory.cid>0">
+				 cid=#{bookCategory.cid},			
+			</if>
+		</set>
+		where bid=#{bid}
+	</update>
+	
+	<delete id="deleteBook" parameterType="int">
+		delete from book where bid=#{bid}
+	</delete>
+	
+	
+</mapper>
